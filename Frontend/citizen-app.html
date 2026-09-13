@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GEO FRAME — Citizen Mobile Portal</title>
+
+  <!-- PWA Settings -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <!-- External Libraries for PDF & QR -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #0f172a; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px; }
+    
+    .mobile-frame {
+      width: 100%;
+      max-width: 420px;
+      background: #f8fafc;
+      border-radius: 28px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 6px solid #1e293b;
+    }
+
+    .app-header {
+      background: #091733;
+      color: #ffffff;
+      padding: 18px 16px;
+      text-align: center;
+      border-bottom: 2px solid #0284c7;
+    }
+    .app-header h1 { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; }
+    .app-header p { font-size: 10px; color: #94a3b8; margin-top: 3px; }
+
+    .app-content { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+
+    .btn {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn-primary { background: #0284c7; color: #ffffff; }
+    .btn-dark { background: #0f172a; color: #ffffff; }
+    .btn-success { background: #16a34a; color: #ffffff; }
+
+    .badge { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-success { background: #dcfce7; color: #166534; }
+
+    .data-row { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 0; }
+    .data-row span { color: #64748b; }
+    .data-row b { color: #0f172a; }
+  </style>
+</head>
+<body>
+
+<div class="mobile-frame">
+  <div class="app-header">
+    <h1>GEO FRAME • नागरिक भू-पोर्टल</h1>
+    <p>पारदर्शी भू-अधिग्रहण एवं प्रत्यक्ष मुआवज़ा वितरण प्रणाली</p>
+  </div>
+
+  <div class="app-content">
+
+    <!-- 1. Voice Readout Toolbar -->
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px;">
+      <div>
+        <div style="font-size:11px; font-weight:800; color:#0f172a;">वॉयस सेवा (Audio Assist)</div>
+        <div style="font-size:9px; color:#64748b;">विवरण ऑडियो में सुनें</div>
+      </div>
+      <button id="voiceBtn" class="btn btn-primary" onclick="playVoiceSummary()">
+        🔊 सुनें (Hindi)
+      </button>
+    </div>
+
+    <!-- 2. Land Parcel Status Summary -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+        <b style="font-size:12px; color:#0f172a;">पार्सल स्थिति (Khasra Record)</b>
+        <span class="badge badge-success">स्वीकृत (Approved)</span>
+      </div>
+      <div class="data-row"><span>पार्सल आईडी:</span><b>UP-LKO-10458</b></div>
+      <div class="data-row"><span>खसरा संख्या:</span><b>245/2</b></div>
+      <div class="data-row"><span>भू-स्वामी:</span><b>Raj Kumar</b></div>
+      <div class="data-row"><span>ग्राम / तहसील:</span><b>सरोजिनी नगर, लखनऊ</b></div>
+      <div class="data-row"><span>अधिग्रहित रकबा:</span><b>2.40 Acre</b></div>
+      <div class="data-row"><span>स्वीकृत मुआवज़ा:</span><b style="color:#16a34a;">₹18,40,000</b></div>
+    </div>
+
+    <!-- 3. Aadhaar / e-KYC Verification Simulation -->
+    <div class="card" id="kycCard">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <b style="font-size:11px; color:#0f172a;">भू-स्वामी e-KYC सत्यापन</b>
+          <div style="font-size:9px; color:#64748b; margin-top:2px;">बायोमेट्रिक व DBT बैंक सीडिंग स्थिति</div>
+        </div>
+        <span id="kycStatusPill" class="badge badge-pending">Pending</span>
+      </div>
+
+      <div id="kycFeedback" style="margin-top:10px; font-size:10px; color:#475569; line-height:1.4;">
+        मुआवज़ा हस्तांतरण सुरक्षित करने के लिए e-KYC सत्यापन आवश्यक है।
+      </div>
+
+      <button id="kycVerifyBtn" class="btn btn-dark" onclick="runBiometricKycSimulation()" style="width:100%; margin-top:10px;">
+        🔒 Verify Aadhaar Biometric (e-KYC)
+      </button>
+    </div>
+
+    <!-- 4. QR-Verified Award Order PDF Download -->
+    <div id="qrCodeContainer" style="display:none;"></div>
+    <button class="btn btn-success" onclick="generateAwardCertificatePdf()" style="padding:13px;">
+      📜 Download Award Order (PDF + QR)
+    </button>
+
+  </div>
+</div>
+
+<script>
+  // PWA Service Worker Registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('PWA Service Worker Active ✓', reg.scope))
+        .catch(err => console.error('PWA Registration Error:', err));
+    });
+  }
+
+  // Feature 1: Hindi Voice Readout (Web Speech API)
+  let isSpeaking = false;
+  function playVoiceSummary() {
+    if (!('speechSynthesis' in window)) {
+      alert("आपके डिवाइस पर वॉयस सेवा समर्थित नहीं है।");
+      return;
+    }
+
+    const voiceBtn = document.getElementById("voiceBtn");
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      isSpeaking = false;
+      voiceBtn.textContent = "🔊 सुनें (Hindi)";
+      voiceBtn.style.background = "#0284c7";
+      return;
+    }
+
+    const textToRead = "राष्ट्रीय भू-अधिग्रहण पोर्टल सूचना। खसरा नंबर 245/2, ग्राम सरोजिनी नगर, लखनऊ के लिए 18 लाख 40 हजार रुपये का मुआवजा स्वीकृत हो गया है। आपका बैंक खाता पी एफ एम एस प्रणाली से लिंक है।";
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    utterance.lang = "hi-IN";
+    utterance.rate = 0.92;
+
+    utterance.onstart = () => {
+      isSpeaking = true;
+      voiceBtn.textContent = "⏹️ रोकें (Stop)";
+      voiceBtn.style.background = "#dc2626";
+    };
+
+    utterance.onend = () => {
+      isSpeaking = false;
+      voiceBtn.textContent = "🔊 पुनः सुनें";
+      voiceBtn.style.background = "#0284c7";
+    };
+
+    utterance.onerror = () => {
+      isSpeaking = false;
+      voiceBtn.textContent = "🔊 सुनें (Hindi)";
+      voiceBtn.style.background = "#0284c7";
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  // Feature 2: e-KYC Verification Simulation
+  function runBiometricKycSimulation() {
+    const btn = document.getElementById("kycVerifyBtn");
+    const feedback = document.getElementById("kycFeedback");
+    const pill = document.getElementById("kycStatusPill");
+
+    btn.disabled = true;
+    btn.style.opacity = "0.7";
+    btn.innerHTML = "⏳ Validating Biometric & Bank Seeding...";
+
+    setTimeout(() => {
+      pill.className = "badge badge-success";
+      pill.textContent = "Validated ✓";
+
+      feedback.innerHTML = `
+        <div style="background:#ecfdf5; border:1px solid #a7f3d0; padding:8px; border-radius:8px; color:#065f46; font-size:10px;">
+          <b>✓ Identity & Bank Seeding Validated</b><br>
+          • Biometric Verification: <b>Success</b><br>
+          • DBT Status: <b>PFMS Linked</b><br>
+          • Registry Clearance: <b>Verified (Zero Dispute)</b>
+        </div>
+      `;
+      btn.style.display = "none";
+    }, 1500);
+  }
+
+  // Feature 3: Dynamic PDF Generation with QR Code
+  async function generateAwardCertificatePdf() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+    const parcelId = "UP-LKO-10458";
+    const khasra = "245/2";
+    const owner = "Raj Kumar";
+    const village = "Sarojini Nagar, Lucknow";
+    const awardAmount = "Rs. 18,40,000/-";
+    const pfmsRef = "PFMS-9482103";
+
+    // Generate Verification QR
+    const qrContainer = document.getElementById("qrCodeContainer");
+    qrContainer.innerHTML = "";
+    new QRCode(qrContainer, {
+      text: `https://geoframe.gov.in/verify?parcel=${parcelId}&tx=${pfmsRef}`,
+      width: 100,
+      height: 100
+    });
+
+    await new Promise(r => setTimeout(r, 200));
+    const qrCanvas = qrContainer.querySelector("canvas");
+    const qrDataUrl = qrCanvas ? qrCanvas.toDataURL("image/png") : null;
+
+    // Header Band
+    doc.setFillColor(9, 23, 51);
+    doc.rect(0, 0, 210, 36, "F");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(255, 255, 255);
+    doc.text("NATIONAL LAND ACQUISITION SYSTEM", 105, 16, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.setTextColor(147, 197, 253);
+    doc.text("OFFICIAL COMPENSATION AWARD ORDER (SECTION 19)", 105, 26, { align: "center" });
+
+    // Outer Frame
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.5);
+    doc.rect(14, 44, 182, 232);
+
+    // Document Title
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(12);
+    doc.text("STATUTORY COMPENSATION AWARD CERTIFICATE", 20, 56);
+
+    // Metadata Records
+    const rows = [
+      ["Parcel ID", parcelId],
+      ["Khasra Number", khasra],
+      ["Recorded Landowner", owner],
+      ["Tehsil / District", village],
+      ["Approved Compensation", awardAmount],
+      ["PFMS Reference Token", pfmsRef],
+      ["Date of Issue", new Date().toLocaleDateString("en-IN")]
+    ];
+
+    let y = 68;
+    rows.forEach(([label, value]) => {
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(100, 116, 139);
+      doc.text(label + ":", 20, y);
+
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(15, 23, 42);
+      doc.text(value, 80, y);
+
+      doc.line(20, y + 2, 190, y + 2);
+      y += 11;
+    });
+
+    // Legal Clause
+    doc.setFontSize(9);
+    doc.setTextColor(71, 85, 105);
+    const statutoryNotice = "This award order is issued in compliance with the RFCTLARR Act 2013. Compensation payment has been cleared via the central PFMS gateway. Ownership title transfers directly to the acquiring authority upon realization of credit.";
+    doc.text(doc.splitTextToSize(statutoryNotice, 170), 20, y + 10);
+
+    // Add QR Code
+    if (qrDataUrl) {
+      doc.addImage(qrDataUrl, "PNG", 20, 205, 34, 34);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Scan to verify authenticity", 20, 245);
+    }
+
+    // Digital Certification Badge
+    doc.setFillColor(236, 253, 245);
+    doc.roundedRect(110, 205, 76, 34, 3, 3, "F");
+    doc.setTextColor(6, 95, 70);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text("DIGITALLY SIGNED", 148, 216, { align: "center" });
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text("Competent Authority (Land Acquisition)", 148, 224, { align: "center" });
+    doc.text("SHA-256 Validated Signature", 148, 231, { align: "center" });
+
+    doc.save(`Award_Certificate_${parcelId}.pdf`);
+  }
+</script>
+
+</body>
+</html>

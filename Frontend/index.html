@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEO FRAME | National Land Acquisition & Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+  <link rel="stylesheet" href="style.css">
+  <!-- PWA Settings -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0284c7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>GEO FRAME - National Land Acquisition Management System</title>
+<meta name="description" content="Official GEO FRAME Citizen Portal for Land Acquisition, RFCTLARR 2013 Compensation and GIS Tracking.">
+<meta name="keywords" content="GEO FRAME, land acquisition, khasra lookup, citizen portal">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+      <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('Service Worker Registered ✓', reg.scope))
+        .catch(err => console.error('Service Worker Registration Failed:', err));
+    });
+  }
+</script>
+   <header class="geo-navy-navbar">
+  <!-- Brand / Logo Section -->
+  <div class="nav-brand">
+    <div class="brand-badge">
+      <span class="emblem-icon">🏛️</span>
+      <span class="pulse-ring"></span>
+    </div>
+    <div class="brand-meta">
+      <h1 class="brand-title">GEO FRAME</h1>
+      <span class="brand-subtitle">Govt. of India • Land Acquisition Portal</span>
+    </div>
+  </div>
+
+  <!-- Horizontal Navigation Links -->
+  <nav class="nav-horizontal">
+    <button class="nav-tab active" data-page="dashboard">
+      <span class="tab-icon">📊</span>
+      <span class="tab-text">Dashboard</span>
+    </button>
+    <button class="nav-tab" data-page="mapPage">
+      <span class="tab-icon">🗺️</span>
+      <span class="tab-text">GIS Map</span>
+    </button>
+    <button class="nav-tab" data-page="projects">
+      <span class="tab-icon">📁</span>
+      <span class="tab-text">Projects</span>
+    </button>
+    <button class="nav-tab" data-page="parcels">
+      <span class="tab-icon">📑</span>
+      <span class="tab-text">Parcels</span>
+    </button>
+    <button class="nav-tab" data-page="documents">
+      <span class="tab-icon">📂</span>
+      <span class="tab-text">Documents</span>
+    </button>
+    <button class="nav-tab" data-page="compensation">
+      <span class="tab-icon">💰</span>
+      <span class="tab-text">Compensation</span>
+    </button>
+    <button class="nav-tab" data-page="analytics">
+      <span class="tab-icon">🤖</span>
+      <span class="tab-text">AI Analytics</span>
+    </button>
+    <button class="nav-tab" data-page="citizen">
+      <span class="tab-icon">👤</span>
+      <span class="tab-text">Citizen Lookup</span>
+    </button>
+  </nav>
+
+  <!-- Right Actions & System Status -->
+  <div class="nav-actions">
+    <div class="live-pill">
+      <span class="dot-blink"></span>
+      <span>MySQL Live</span>
+    </div>
+
+    <button class="action-btn" id="navNotification" title="Alerts">
+      <span>🔔</span>
+      <span class="notif-badge">3</span>
+    </button>
+
+    <div class="profile-chip">
+      <div class="chip-avatar">AD</div>
+      <div class="chip-info">
+        <span class="chip-name">Admin</span>
+        <span class="chip-role">National Officer</span>
+      </div>
+    </div>
+  </div>
+</header>
+  <!-- LOGIN -->
+  <section class="login" id="loginPage">
+    <div class="login-card">
+      <div class="brand">
+        <div class="mark">G</div>
+        <div>
+          <h1>GEO FRAME</h1>
+          <p>National Land Intelligence & Acquisition Platform</p>
+        </div>
+      </div>
+      <h2>National Operations Login</h2>
+      <p>Real-time monitoring, acquisition workflow and decision support for land administration.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label>Official Email</label>
+          <input id="email" type="email" value="admin@geoframe.gov.in" required>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="password" type="password" value="admin123" required>
+        </div>
+        <div class="field">
+          <label>Role</label>
+          <select id="loginRole">
+            <option>National Administrator</option>
+            <option>State Land Officer</option>
+            <option>District Land Officer</option>
+            <option>Survey Officer</option>
+            <option>Legal Officer</option>
+            <option>Compensation Officer</option>
+            <option>Project Director</option>
+            <option>Citizen Support Officer</option>
+          </select>
+        </div>
+        <button class="login-btn">Sign In to GEO FRAME</button>
+      </form>
+      <div class="demo">
+        <b>Demo login</b><br>
+        admin@geoframe.gov.in / admin123<br>
+        Prototype mode — connected to persistent local database.
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <div class="app hidden" id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="side-head">
+        <div class="side-brand">
+          <div class="mark">G</div>
+          <div>
+            <strong>GEO FRAME</strong>
+            <small>National Land Intelligence</small>
+          </div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-section">Command</div>
+        <button class="nav-btn active" data-page="dashboard">▦ &nbsp; National Dashboard</button>
+        <button class="nav-btn" data-page="mapPage">⌖ &nbsp; GIS Command Map</button>
+
+        <div class="nav-section">Land & Projects</div>
+        <button class="nav-btn" data-page="states">▤ &nbsp; States & UTs</button>
+        <button class="nav-btn" data-page="projects">◈ &nbsp; Project Management</button>
+        <button class="nav-btn" data-page="parcels">▥ &nbsp; Land Parcel Registry</button>
+        <button class="nav-btn" data-page="workflow">⇄ &nbsp; Acquisition Workflow</button>
+
+        <div class="nav-section">Field / Legal / Finance</div>
+        <button class="nav-btn" data-page="documents">▣ &nbsp; Documents</button>
+        <button class="nav-btn" data-page="surveys">⌖ &nbsp; Field Surveys</button>
+        <button class="nav-btn" data-page="compensation">₹ &nbsp; Compensation</button>
+        <button class="nav-btn" data-page="grievances">☷ &nbsp; Grievances & Hearings</button>
+
+        <div class="nav-section">Intelligence / Access</div>
+        <button class="nav-btn" data-page="analytics">◫ &nbsp; Analytics & AI</button>
+        <button class="nav-btn" data-page="citizen">◎ &nbsp; Citizen Portal</button>
+        <button class="nav-btn" data-page="audit">◷ &nbsp; Audit Trail</button>
+        <button class="nav-btn" data-page="users">◉ &nbsp; Users & Roles</button>
+        <button class="nav-btn" data-page="reports">▤ &nbsp; Reports</button>
+      </nav>
+      <div class="side-foot">
+        <div class="mini-user">
+          <div class="avatar" id="avatar">A</div>
+          <div>
+            <strong id="uName">Administrator</strong>
+            <small id="uRole">National Administrator</small>
+          </div>
+        </div>
+        <button class="logout" id="logout">Sign Out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="top-left">
+          <button class="icon mobile-menu" id="menu">☰</button>
+          <div>
+            <h1 id="heading">National Dashboard</h1>
+            <p id="subheading">Real-Time National Land Acquisition & Management System</p>
+          </div>
+        </div>
+        <div class="actions">
+          <div class="chip" id="date"></div>
+          <button class="icon" id="notification">🔔<span class="count">5</span></button>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <!-- DASHBOARD -->
+        <section class="page active" id="dashboard">
+          <div class="section-title">
+            <div>
+              <h2>National Command Dashboard</h2>
+              <p>India-wide visibility into land acquisition, projects, finance, field activity and exceptions.</p>
+            </div>
+            <div style="display:flex;gap:6px">
+              <select id="stateDash" class="btn secondary">
+                <option value="">All India</option>
+              </select>
+              <button class="btn primary" id="refresh">Refresh</button>
+            </div>
+          </div>
+          <div class="kpis">
+            <div class="card kpi"><div><div class="kpi-label">States / UTs</div><div class="kpi-value">36</div><div class="kpi-note">28 states + 8 UTs</div></div><div class="kicon blue-bg">IN</div></div>
+            <div class="card kpi"><div><div class="kpi-label">Active Projects</div><div class="kpi-value" id="dkProjects">128</div><div class="kpi-note">+9 this quarter</div></div><div class="kicon green-bg">◈</div></div>
+            <div class="card kpi"><div><div class="kpi-label">Land Parcels</div><div class="kpi-value" id="dkParcels">12,458</div><div class="kpi-note">92% digitally mapped</div></div><div class="kicon blue-bg">▤</div></div>
+            <div class="card kpi"><div><div class="kpi-label">Active Cases</div><div class="kpi-value" id="dkCases">4,286</div><div class="kpi-note">India-wide workflow</div></div><div class="kicon amber-bg">⇄</div></div>
+            <div class="card kpi"><div><div class="kpi-label">Compensation</div><div class="kpi-value">₹84.6 Cr</div><div class="kpi-note">91% approved</div></div><div class="kicon cyan-bg">₹</div></div>
+            <div class="card kpi"><div><div class="kpi-label">High Risk</div><div class="kpi-value" id="dkRisk">64</div><div class="kpi-note" style="color:var(--red)">18 urgent cases</div></div><div class="kicon red-bg">!</div></div>
+          </div>
+
+          <div class="grid2">
+            <div class="card">
+              <div class="card-head"><h3>Acquisition Volume by Month</h3><span>National trend</span></div>
+              <div class="chart-box"><canvas id="trend"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Workflow Health</h3><span>All projects</span></div>
+              <div class="donut-wrap"><div class="donut"><div class="donut-inner"><strong>78%</strong><small>Overall progress</small></div></div></div>
+              <div class="legend">
+                <div class="legend-row"><span><i class="dot" style="background:#15803d"></i>Completed</span><b>61%</b></div>
+                <div class="legend-row"><span><i class="dot" style="background:#f59e0b"></i>Processing</span><b>21%</b></div>
+                <div class="legend-row"><span><i class="dot" style="background:#ef4444"></i>Pending</span><b>18%</b></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid3">
+            <div class="card">
+              <div class="card-head"><h3>Recent Activity</h3><span>Live feed</span></div>
+              <div class="activity">
+                <div class="activity-row"><div class="activity-icon">📄</div><div><strong>Rajasthan parcel verified</strong><p>RJ-JP-004821 · Ownership documents validated.</p><small>8 minutes ago</small></div></div>
+                <div class="activity-row"><div class="activity-icon">⌖</div><div><strong>Survey team synced GPS data</strong><p>Kerala Coastal Corridor · 14 parcels.</p><small>32 minutes ago</small></div></div>
+                <div class="activity-row"><div class="activity-icon">₹</div><div><strong>Compensation batch approved</strong><p>UP-KNP-2210 · ₹2.74 Cr batch.</p><small>1 hour ago</small></div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Operational Exceptions</h3><span>Priority</span></div>
+              <div class="alert-list">
+                <div class="alert left-red"><strong>18 SLA breaches</strong><p>Verification overdue more than 30 days.</p></div>
+                <div class="alert left-amber"><strong>12 payment holds</strong><p>Beneficiary or bank verification pending.</p></div>
+                <div class="alert left-blue"><strong>7 legal hearings</strong><p>Hearing dates require officer scheduling.</p></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Decision Snapshot</h3><span>AI support</span></div>
+              <div class="metric"><span>National priority index</span><strong>82 / 100</strong></div>
+              <div class="bar" style="margin-top:10px"><i style="width:82%"></i></div>
+              <p style="font-size:8px;color:#64748b;line-height:1.5">Prioritize overdue verification and compensation holds before starting additional high-cost acquisition packages.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAP -->
+        <section class="page" id="mapPage">
+          <div class="section-title">
+            <div><h2>GIS Command Map</h2><p>Interactive national map with Satellite layer, Khasra Cadastral Polygons and Polygon drawing tool.</p></div>
+            <button class="btn primary" id="geo">Use My Location</button>
+          </div>
+          <div class="card map-card">
+            <div id="map"></div>
+            <div class="layer-box">
+              <b style="font-size:9px">Layers</b>
+              <div class="layer-row">Projects <button class="switch on" data-layer="projects"></button></div>
+              <div class="layer-row">Parcels <button class="switch on" data-layer="parcels"></button></div>
+              <div class="layer-row">Khasra Polygons <button class="switch on" data-layer="polygons"></button></div>
+              <div class="layer-row">Risk Hotspots <button class="switch on" data-layer="risk"></button></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STATES -->
+        <section class="page" id="states">
+          <div class="section-title"><div><h2>India State & UT Coverage</h2><p>National rollout across all 28 states and 8 Union Territories.</p></div></div>
+          <div class="toolbar">
+            <input id="stateSearch" placeholder="Search state / UT...">
+            <select id="regionFilter">
+              <option value="">All regions</option>
+              <option>North</option><option>South</option><option>East</option>
+              <option>West</option><option>Central</option><option>Northeast</option><option>UT</option>
+            </select>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>State / UT</th><th>Region</th><th>Projects</th><th>Active Cases</th><th>Parcels</th><th>Completion</th><th>Risk</th><th>State Officer</th><th>Open</th></tr></thead>
+              <tbody id="stateBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- PROJECTS -->
+        <section class="page" id="projects">
+          <div class="section-title">
+            <div><h2>Project Management</h2><p>Create, search, open and monitor national infrastructure acquisition projects.</p></div>
+            <button class="btn primary" id="createProject">+ Create Project</button>
+          </div>
+          <div class="toolbar">
+            <input id="projectSearch" placeholder="Search project, state, district...">
+            <select id="projectType">
+              <option value="">All Types</option><option>Highway</option><option>Railway</option><option>Airport</option>
+              <option>Industrial</option><option>Metro</option><option>Port</option><option>Defence</option>
+              <option>Urban</option><option>Renewable Energy</option>
+            </select>
+            <select id="projectStatus">
+              <option value="">All Statuses</option><option>Active</option><option>Near Completion</option><option>Planning</option><option>Delayed</option>
+            </select>
+          </div>
+          <div class="project-grid" id="projectGrid"></div>
+        </section>
+
+        <!-- PROJECT DETAIL -->
+        <section class="page" id="projectDetail">
+          <div class="section-title">
+            <div><h2 id="pTitle">Project Profile</h2><p id="pSub">Detailed project management and acquisition profile.</p></div>
+            <button class="btn secondary" id="backProjects">← Back to Projects</button>
+          </div>
+          <div class="card" style="margin-bottom:12px">
+            <div class="project-summary">
+              <div class="metric"><span>Project ID</span><strong id="pdId"></strong></div>
+              <div class="metric"><span>Type</span><strong id="pdType"></strong></div>
+              <div class="metric"><span>Region</span><strong id="pdRegion"></strong></div>
+              <div class="metric"><span>Status</span><strong id="pdStatus"></strong></div>
+              <div class="metric"><span>Budget</span><strong id="pdBudget"></strong></div>
+              <div class="metric"><span>Acquisition Parcels</span><strong id="pdParcels"></strong></div>
+              <div class="metric"><span>Progress</span><strong id="pdProgress"></strong></div>
+              <div class="metric"><span>Risk Score</span><strong id="pdRisk"></strong></div>
+            </div>
+          </div>
+          <div class="detail-grid">
+            <div class="card">
+              <div class="card-head"><h3>Project Overview</h3><span id="pdDistrict"></span></div>
+              <div class="detail-row"><span>Project Authority</span><b id="pdAuthority"></b></div>
+              <div class="detail-row"><span>Start Date</span><b id="pdStart"></b></div>
+              <div class="detail-row"><span>Target Completion</span><b id="pdEnd"></b></div>
+              <div class="detail-row"><span>Land Requirement</span><b id="pdLandReq"></b></div>
+              <div class="detail-row"><span>Major Stakeholders</span><b id="pdStake"></b></div>
+              <div class="owner">
+                <div class="owner-pic">🏗️</div>
+                <div>
+                  <b id="pdDirector" style="font-size:10px"></b>
+                  <div style="font-size:8px;color:#64748b">Project Director</div>
+                  <div style="font-size:8px;color:#15803d;margin-top:2px">✓ Government project authority verified</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+                <button class="btn primary" id="editProject">Edit Project</button>
+                <button class="btn secondary" id="projectReport">Project Report</button>
+                <button class="btn secondary" id="projectDocs">Project Documents</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Project Milestones</h3><span>Lifecycle</span></div>
+              <div id="milestones"></div>
+            </div>
+          </div>
+          <div class="grid2" style="margin-top:12px">
+            <div class="card">
+              <div class="card-head"><h3>District / State Package</h3><span>Coverage</span></div>
+              <div class="table-card">
+                <table>
+                  <thead><tr><th>State</th><th>District</th><th>Parcels</th><th>Acquired</th><th>Pending</th><th>Progress</th></tr></thead>
+                  <tbody id="projectPackage"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Project Team</h3><span>Assigned roles</span></div>
+              <div class="people" id="teamList"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PARCELS -->
+        <section class="page" id="parcels">
+          <div class="section-title">
+            <div><h2>Land Parcel Registry</h2><p>Digital parcel, Khasra/Khatauni, ownership and acquisition data.</p></div>
+            <button class="btn primary" id="addParcel">+ Add Parcel</button>
+          </div>
+          <div class="toolbar">
+            <input id="parcelSearch" placeholder="Search parcel, owner, khasra, village...">
+            <select id="parcelState"></select>
+            <select id="parcelStatus">
+              <option value="">All Statuses</option><option>Completed</option><option>Processing</option><option>Pending</option><option>Review</option>
+            </select>
+            <button class="btn secondary" id="exportParcel">Export CSV</button>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Parcel ID</th><th>Khasra</th><th>Owner</th><th>Village</th><th>District</th><th>State</th><th>Area</th><th>Land Type</th><th>Status</th><th>Profile</th></tr></thead>
+              <tbody id="parcelBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- PARCEL DETAIL -->
+        <section class="page" id="parcelDetail">
+          <div class="section-title">
+            <div><h2 id="parcelTitle">Parcel Profile</h2><p>Integrated land ownership, acquisition, compensation and document status.</p></div>
+            <button class="btn secondary" id="backParcels">← Back</button>
+          </div>
+          <div class="detail-grid">
+            <div class="card">
+              <div class="card-head"><h3>Land Parcel Information</h3><span id="parcelStatusBadge"></span></div>
+              <div class="detail-row"><span>Parcel ID</span><b id="dParcel"></b></div>
+              <div class="detail-row"><span>Khasra / Khatauni</span><b id="dKhasra"></b></div>
+              <div class="detail-row"><span>Owner</span><b id="dOwner"></b></div>
+              <div class="detail-row"><span>Village / District</span><b id="dVillage"></b></div>
+              <div class="detail-row"><span>State / UT</span><b id="dState"></b></div>
+              <div class="detail-row"><span>Area</span><b id="dArea"></b></div>
+              <div class="detail-row"><span>Land Type</span><b id="dLandType"></b></div>
+              <div class="detail-row"><span>GPS</span><b id="dGps"></b></div>
+              <div class="owner">
+                <div class="owner-pic">👤</div>
+                <div>
+                  <b id="ownerName" style="font-size:10px"></b>
+                  <div style="font-size:8px;color:#64748b">Registered landowner</div>
+                  <div style="font-size:8px;color:#15803d;margin-top:2px">✓ Ownership verification complete</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+                <button class="btn primary" id="parcelUpdate">Update Status</button>
+                <button class="btn secondary" id="parcelRemark">Add Remark</button>
+                <button class="btn secondary" id="parcelDocs">View Documents</button>
+                <button class="btn primary" id="dispatchNotify" style="background:#059669">📲 Disburse &amp; Notify Citizen</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Acquisition Lifecycle</h3><span>8 stages</span></div>
+              <div id="parcelWorkflow"></div>
+            </div>
+          </div>
+          <div class="grid2" style="margin-top:12px">
+            <div class="card">
+              <div class="card-head"><h3>Compensation Snapshot</h3><span>Current valuation</span></div>
+              <div class="project-summary">
+                <div class="metric"><span>Market Value</span><strong>₹14.80 L</strong></div>
+                <div class="metric"><span>Approved</span><strong>₹18.40 L</strong></div>
+                <div class="metric"><span>Paid</span><strong>₹0</strong></div>
+                <div class="metric"><span>Status</span><strong style="color:var(--amber)">Pending</strong></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Documents</h3><span>4 files</span></div>
+              <div class="doc-list">
+                <div class="doc"><div><strong>📄 Ownership Record</strong><small>Verified · PDF</small></div><button class="small-btn">View</button></div>
+                <div class="doc"><div><strong>📄 Survey Report</strong><small>Uploaded · PDF</small></div><button class="small-btn">View</button></div>
+                <div class="doc"><div><strong>📄 Acquisition Notice</strong><small>Issued · PDF</small></div><button class="small-btn">View</button></div>
+                <div class="doc"><div><strong>📄 Compensation Order</strong><small>Draft · PDF</small></div><button class="small-btn">View</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- WORKFLOW -->
+        <section class="page" id="workflow">
+          <div class="section-title">
+            <div><h2>End-to-End Acquisition Workflow</h2><p>National workflow: Proposal → Survey → Verification → Notification → Objection → Compensation → Possession → Closure.</p></div>
+            <button class="btn primary" id="advance">Advance Case</button>
+          </div>
+          <div class="workflow" style="margin-bottom:14px">
+            <div class="wstep done"><small>01</small><strong>Proposal</strong><b>124</b></div>
+            <div class="wstep done"><small>02</small><strong>Survey</strong><b>112</b></div>
+            <div class="wstep done"><small>03</small><strong>Verification</strong><b>98</b></div>
+            <div class="wstep live"><small>04</small><strong>Notification</strong><b>76</b></div>
+            <div class="wstep future"><small>05</small><strong>Objection</strong><b>31</b></div>
+            <div class="wstep future"><small>06</small><strong>Compensation</strong><b>54</b></div>
+            <div class="wstep future"><small>07</small><strong>Possession</strong><b>38</b></div>
+            <div class="wstep future"><small>08</small><strong>Closure</strong><b>21</b></div>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Case ID</th><th>Project</th><th>Parcel</th><th>State</th><th>Stage</th><th>SLA</th><th>Risk</th><th>Open</th></tr></thead>
+              <tbody>
+                <tr><td>ACQ-2026-1048</td><td>NH-27 Expansion II</td><td>UP-LKO-10458</td><td>Uttar Pradesh</td><td><span class="status processing">Notification</span></td><td>18 days</td><td><span class="status pending">High</span></td><td><button class="small-btn" onclick="openParcel('UP-LKO-10458')">Open</button></td></tr>
+                <tr><td>ACQ-2026-1102</td><td>Western Dedicated Freight Corridor</td><td>RJ-JP-004821</td><td>Rajasthan</td><td><span class="status review">Verification</span></td><td>7 days</td><td><span class="status processing">Medium</span></td><td><button class="small-btn" onclick="openParcel('RJ-JP-004821')">Open</button></td></tr>
+                <tr><td>ACQ-2026-1120</td><td>Kerala Coastal Corridor</td><td>KL-ER-10421</td><td>Kerala</td><td><span class="status pending">Compensation</span></td><td>26 days</td><td><span class="status pending">High</span></td><td><button class="small-btn" onclick="openParcel('KL-ER-10421')">Open</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DOCUMENTS -->
+        <section class="page" id="documents">
+          <div class="section-title">
+            <div><h2>Digital Document Management</h2><p>Ownership, survey, legal notice, valuation and compensation evidence.</p></div>
+            <button class="btn primary" id="addDocument">+ Upload Document</button>
+          </div>
+          <div class="toolbar">
+            <input id="docSearch" placeholder="Search document / parcel...">
+            <select id="docType">
+              <option value="">All Types</option><option>Ownership</option><option>Survey</option><option>Notice</option><option>Compensation</option><option>Legal</option>
+            </select>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Document</th><th>Type</th><th>Parcel</th><th>State</th><th>Uploaded By</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+              <tbody id="docBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- SURVEYS -->
+        <section class="page" id="surveys">
+          <div class="section-title">
+            <div><h2>Field Survey & Inspection</h2><p>GPS-enabled surveys, inspection status, photographs and field remarks.</p></div>
+            <button class="btn primary" id="newSurvey">+ New Survey</button>
+          </div>
+          <div class="grid3">
+            <div class="card"><div class="card-head"><h3>Scheduled Today</h3><span>National</span></div><div class="metric"><span>Field visits</span><strong>42</strong></div></div>
+            <div class="card"><div class="card-head"><h3>Completed</h3><span>Today</span></div><div class="metric"><span>Reports uploaded</span><strong>31</strong></div></div>
+            <div class="card"><div class="card-head"><h3>GPS Coverage</h3><span>Current month</span></div><div class="metric"><span>Parcels geotagged</span><strong>94%</strong></div></div>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Survey ID</th><th>Parcel</th><th>State</th><th>Inspector</th><th>GPS</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody id="surveyBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- COMPENSATION -->
+        <section class="page" id="compensation">
+          <div class="section-title">
+            <div><h2>Compensation Management</h2><p>Valuation, approvals, beneficiary verification and payment monitoring.</p></div>
+            <div style="display:flex;gap:6px">
+              <button class="btn secondary" id="openCalc">🧮 RFCTLARR Calculator</button>
+              <button class="btn primary" id="newComp">+ Compensation Case</button>
+            </div>
+          </div>
+          <div class="project-summary" style="margin-bottom:13px">
+            <div class="metric"><span>Total Approved</span><strong>₹84.6 Cr</strong></div>
+            <div class="metric"><span>Paid</span><strong>₹71.2 Cr</strong></div>
+            <div class="metric"><span>Pending</span><strong>₹13.4 Cr</strong></div>
+            <div class="metric"><span>Bank Verified</span><strong>96%</strong></div>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Case</th><th>Parcel</th><th>State</th><th>Beneficiary</th><th>Market</th><th>Approved</th><th>Payment</th><th>Bank</th></tr></thead>
+              <tbody id="compBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- GRIEVANCES -->
+        <section class="page" id="grievances">
+          <div class="section-title">
+            <div><h2>Objections, Hearings & Grievances</h2><p>Track public objections, hearings, complaints, decisions and closure.</p></div>
+            <button class="btn primary" id="newGrievance">+ Register Objection</button>
+          </div>
+          <div class="project-summary" style="margin-bottom:13px">
+            <div class="metric"><span>Open</span><strong>31</strong></div>
+            <div class="metric"><span>Hearings this week</span><strong>14</strong></div>
+            <div class="metric"><span>Resolved</span><strong>87%</strong></div>
+            <div class="metric"><span>SLA compliance</span><strong>93%</strong></div>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Ticket</th><th>Citizen</th><th>Parcel</th><th>State</th><th>Issue</th><th>Hearing</th><th>Status</th><th>Officer</th></tr></thead>
+              <tbody id="grievanceBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ANALYTICS -->
+        <section class="page" id="analytics">
+          <div class="section-title">
+            <div><h2>Analytics & AI Decision Support</h2><p>Illustrative priority scoring using delay, financial, legal and operational signals.</p></div>
+            <button class="btn primary" id="runAI">Run Priority Analysis</button>
+          </div>
+          <div class="grid3">
+            <div class="card"><div class="card-head"><h3>High-Risk Cases</h3><span>Score ≥ 75</span></div><div class="score">64</div><p style="font-size:8px;color:#64748b">18 cases require immediate escalation.</p></div>
+            <div class="card"><div class="card-head"><h3>Average Cycle Time</h3><span>National</span></div><div class="metric"><span>Days</span><strong>46</strong></div></div>
+            <div class="card"><div class="card-head"><h3>Digital Evidence</h3><span>National</span></div><div class="metric"><span>Acquisition cases</span><strong>92%</strong></div></div>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Priority</th><th>Parcel</th><th>State</th><th>Zone Profile</th><th>Score</th><th>Main Reason</th><th>Recommended Action</th></tr></thead>
+              <tbody id="aiBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- CITIZEN -->
+        <section class="page" id="citizen">
+          <div class="section-title">
+            <div><h2>Citizen Status Portal</h2><p>Public lookup for acquisition status. Sensitive information remains hidden.</p></div>
+          </div>
+          <div class="card">
+            <div class="citizen-search">
+              <input id="citizenQuery" placeholder="Enter Parcel ID e.g. UP-LKO-10458">
+              <select id="citizenType"><option>Parcel ID</option><option>Case ID</option></select>
+              <button class="btn primary" id="citizenSearch">Search</button>
+            </div>
+            <div class="citizen-result" id="citizenResult"></div>
+          </div>
+          <div class="grid3" style="margin-top:13px">
+            <div class="card"><h3 style="font-size:11px">Public Status Lookup</h3><p style="font-size:9px;color:#64748b">Find the current public stage and important dates.</p></div>
+            <div class="card"><h3 style="font-size:11px">Submit Grievance</h3><p style="font-size:9px;color:#64748b">Register an objection against a project or parcel.</p></div>
+            <div class="card"><h3 style="font-size:11px">Public Notices</h3><p style="font-size:9px;color:#64748b">View published notifications and hearing schedules.</p></div>
+          </div>
+        </section>
+
+        <!-- AUDIT -->
+        <section class="page" id="audit">
+          <div class="section-title">
+            <div><h2>Audit Trail & Accountability</h2><p>Trace every major data and workflow action.</p></div>
+            <button class="btn secondary" id="auditCsv">Export CSV</button>
+          </div>
+          <div class="card">
+            <div class="audit-row" style="font-weight:800;background:#f8fafc"><span>Time</span><span>User</span><span>Action</span><span>Module</span></div>
+          </div>
+        </section>
+
+        <!-- USERS -->
+        <section class="page" id="users">
+          <div class="section-title">
+            <div><h2>Users & Role Management</h2><p>Role-based operational access across national, state and district teams.</p></div>
+            <button class="btn primary" id="newUser">+ Add User</button>
+          </div>
+          <div class="toolbar">
+            <input id="userSearch" placeholder="Search user, role, state...">
+            <select id="roleFilter"><option value="">All Roles</option></select>
+          </div>
+          <div class="card table-card">
+            <table>
+              <thead><tr><th>Name</th><th>Official Email</th><th>Department</th><th>Role</th><th>State / UT</th><th>Status</th><th>Last Login</th><th>Manage</th></tr></thead>
+              <tbody id="userBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- REPORTS -->
+        <section class="page" id="reports">
+          <div class="section-title">
+            <div><h2>Reports & Management Exports</h2><p>Generate operational summaries for projects, finance, land and compliance.</p></div>
+            <button class="btn primary" onclick="window.print()">Print View</button>
+          </div>
+          <div class="report-grid">
+            <div class="card report"><div class="report-icon">📊</div><h3>National Acquisition Report</h3><p>Projects, states, parcels, cycle time and completion.</p><button class="btn secondary reportBtn">Generate</button></div>
+            <div class="card report"><div class="report-icon">⌖</div><h3>GIS Land Report</h3><p>Project zones, parcel clusters and risk hotspots.</p><button class="btn secondary reportBtn">Generate</button></div>
+            <div class="card report"><div class="report-icon">₹</div><h3>Compensation Report</h3><p>Approved, paid, pending and state-wise amount.</p><button class="btn secondary reportBtn">Generate</button></div>
+            <div class="card report"><div class="report-icon">⚠</div><h3>Compliance Report</h3><p>SLAs, hearings, missing documents and legal issues.</p><button class="btn secondary reportBtn">Generate</button></div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="modal hidden" id="modal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle">Form</h3>
+        <button class="close" id="modalClose">×</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
