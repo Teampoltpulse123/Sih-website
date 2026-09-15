@@ -1203,3 +1203,27 @@ document.querySelectorAll(".nav-tab").forEach(tab => {
     }
   });
 });
+
+
+
+
+
+function showApp() {
+  if ($("loginPage")) $("loginPage").classList.add("hidden");
+  if ($("app")) $("app").classList.remove("hidden");
+
+  const role = localStorage.getItem("geoRole") || "National Administrator";
+  const user = (localStorage.getItem("geoUser") || "admin@geoframe.gov.in").split("@")[0];
+
+  // Navbar user profile update
+  if ($("navUName")) $("navUName").textContent = user;
+  if ($("navURole")) $("navURole").textContent = role;
+  if ($("navAvatar")) $("navAvatar").textContent = user.charAt(0).toUpperCase();
+
+  // Sidebar profile update
+  if ($("uRole")) $("uRole").textContent = role;
+  if ($("uName")) $("uName").textContent = user;
+
+  loadAllFromBackend();
+  initChart();
+}

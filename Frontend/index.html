@@ -2,105 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GEO FRAME | National Land Acquisition & Management</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GEO FRAME — National Land Acquisition & Management System</title>
+  <meta name="description" content="Official GEO FRAME Citizen Portal for Land Acquisition, RFCTLARR 2013 Compensation and GIS Tracking.">
+  <meta name="keywords" content="GEO FRAME, land acquisition, khasra lookup, citizen portal, GIS, RFCTLARR">
+
   <!-- PWA Settings -->
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#0284c7">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>GEO FRAME - National Land Acquisition Management System</title>
-<meta name="description" content="Official GEO FRAME Citizen Portal for Land Acquisition, RFCTLARR 2013 Compensation and GIS Tracking.">
-<meta name="keywords" content="GEO FRAME, land acquisition, khasra lookup, citizen portal">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet GIS & Drawing Controls -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+
+  <!-- Main Styling -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-      <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('Service Worker Registered ✓', reg.scope))
-        .catch(err => console.error('Service Worker Registration Failed:', err));
-    });
-  }
-</script>
-   <header class="geo-navy-navbar">
-  <!-- Brand / Logo Section -->
-  <div class="nav-brand">
-    <div class="brand-badge">
-      <span class="emblem-icon">🏛️</span>
-      <span class="pulse-ring"></span>
-    </div>
-    <div class="brand-meta">
-      <h1 class="brand-title">GEO FRAME</h1>
-      <span class="brand-subtitle">Govt. of India • Land Acquisition Portal</span>
-    </div>
-  </div>
 
-  <!-- Horizontal Navigation Links -->
-  <nav class="nav-horizontal">
-    <button class="nav-tab active" data-page="dashboard">
-      <span class="tab-icon">📊</span>
-      <span class="tab-text">Dashboard</span>
-    </button>
-    <button class="nav-tab" data-page="mapPage">
-      <span class="tab-icon">🗺️</span>
-      <span class="tab-text">GIS Map</span>
-    </button>
-    <button class="nav-tab" data-page="projects">
-      <span class="tab-icon">📁</span>
-      <span class="tab-text">Projects</span>
-    </button>
-    <button class="nav-tab" data-page="parcels">
-      <span class="tab-icon">📑</span>
-      <span class="tab-text">Parcels</span>
-    </button>
-    <button class="nav-tab" data-page="documents">
-      <span class="tab-icon">📂</span>
-      <span class="tab-text">Documents</span>
-    </button>
-    <button class="nav-tab" data-page="compensation">
-      <span class="tab-icon">💰</span>
-      <span class="tab-text">Compensation</span>
-    </button>
-    <button class="nav-tab" data-page="analytics">
-      <span class="tab-icon">🤖</span>
-      <span class="tab-text">AI Analytics</span>
-    </button>
-    <button class="nav-tab" data-page="citizen">
-      <span class="tab-icon">👤</span>
-      <span class="tab-text">Citizen Lookup</span>
-    </button>
-  </nav>
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('Service Worker Registered ✓', reg.scope))
+          .catch(err => console.error('Service Worker Registration Failed:', err));
+      });
+    }
+  </script>
 
-  <!-- Right Actions & System Status -->
-  <div class="nav-actions">
-    <div class="live-pill">
-      <span class="dot-blink"></span>
-      <span>MySQL Live</span>
-    </div>
-
-    <button class="action-btn" id="navNotification" title="Alerts">
-      <span>🔔</span>
-      <span class="notif-badge">3</span>
-    </button>
-
-    <div class="profile-chip">
-      <div class="chip-avatar">AD</div>
-      <div class="chip-info">
-        <span class="chip-name">Admin</span>
-        <span class="chip-role">National Officer</span>
-      </div>
-    </div>
-  </div>
-</header>
-  <!-- LOGIN -->
+  <!-- 1. LOGIN PAGE (Initial view) -->
   <section class="login" id="loginPage">
     <div class="login-card">
       <div class="brand">
@@ -139,13 +77,86 @@
       <div class="demo">
         <b>Demo login</b><br>
         admin@geoframe.gov.in / admin123<br>
-        Prototype mode — connected to persistent local database.
+        Prototype mode — connected to persistent MySQL backend.
       </div>
     </div>
   </section>
 
-  <!-- APP -->
+  <!-- 2. MAIN APPLICATION CONTAINER (Login ke baad display hoga) -->
   <div class="app hidden" id="app">
+
+    <!-- HORIZONTAL NAVY BLUE ANIMATED HEADER -->
+    <header class="geo-navy-navbar">
+      <div class="nav-brand">
+        <div class="brand-badge">
+          <span class="emblem-icon">🏛️</span>
+          <span class="pulse-ring"></span>
+        </div>
+        <div class="brand-meta">
+          <h1 class="brand-title">GEO FRAME</h1>
+          <span class="brand-subtitle">Govt. of India • Land Acquisition Portal</span>
+        </div>
+      </div>
+
+      <!-- Horizontal Navigation Tabs -->
+      <nav class="nav-horizontal">
+        <button class="nav-tab active" data-page="dashboard">
+          <span class="tab-icon">📊</span>
+          <span class="tab-text">Dashboard</span>
+        </button>
+        <button class="nav-tab" data-page="mapPage">
+          <span class="tab-icon">🗺️</span>
+          <span class="tab-text">GIS Map</span>
+        </button>
+        <button class="nav-tab" data-page="projects">
+          <span class="tab-icon">📁</span>
+          <span class="tab-text">Projects</span>
+        </button>
+        <button class="nav-tab" data-page="parcels">
+          <span class="tab-icon">📑</span>
+          <span class="tab-text">Parcels</span>
+        </button>
+        <button class="nav-tab" data-page="documents">
+          <span class="tab-icon">📂</span>
+          <span class="tab-text">Documents</span>
+        </button>
+        <button class="nav-tab" data-page="compensation">
+          <span class="tab-icon">💰</span>
+          <span class="tab-text">Compensation</span>
+        </button>
+        <button class="nav-tab" data-page="analytics">
+          <span class="tab-icon">🤖</span>
+          <span class="tab-text">AI Analytics</span>
+        </button>
+        <button class="nav-tab" data-page="citizen">
+          <span class="tab-icon">👤</span>
+          <span class="tab-text">Citizen Lookup</span>
+        </button>
+      </nav>
+
+      <!-- Right Actions & System Status -->
+      <div class="nav-actions">
+        <div class="live-pill">
+          <span class="dot-blink"></span>
+          <span>MySQL Live</span>
+        </div>
+
+        <button class="action-btn" id="navNotification" title="Alerts">
+          <span>🔔</span>
+          <span class="notif-badge">3</span>
+        </button>
+
+        <div class="profile-chip">
+          <div class="chip-avatar" id="navAvatar">A</div>
+          <div class="chip-info">
+            <span class="chip-name" id="navUName">Admin</span>
+            <span class="chip-role" id="navURole">National Officer</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- SIDEBAR NAVIGATION -->
     <aside class="sidebar" id="sidebar">
       <div class="side-head">
         <div class="side-brand">
@@ -192,6 +203,7 @@
       </div>
     </aside>
 
+    <!-- MAIN DASHBOARD CONTENT AREA -->
     <main class="main">
       <header class="topbar">
         <div class="top-left">
@@ -670,6 +682,7 @@
     </main>
   </div>
 
+  <!-- POPUP MODAL -->
   <div class="modal hidden" id="modal">
     <div class="modal-card">
       <div class="modal-head">
@@ -680,8 +693,10 @@
     </div>
   </div>
 
+  <!-- FLOATING TOAST NOTIFICATION -->
   <div class="toast" id="toast"></div>
 
+  <!-- CORE SCRIPTS -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
