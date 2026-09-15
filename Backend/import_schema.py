@@ -10,7 +10,7 @@ def get_db_connection():
             host=os.getenv("DB_HOST", "butustvgyyiel4gqhcuc-mysql.services.clever-cloud.com"),
             port=int(os.getenv("DB_PORT", 3306)),
             user=os.getenv("DB_USER", "ubwq4pkaon6lxzoe"),
-            password=os.getenv("DB_PASSWORD", "AapkaCleverCloudPasswordYahanBhiDaalDein"),
+            password=os.getenv("DB_PASSWORD", "J5C53WkaWpgPHQRaGyiL"),
             database=os.getenv("DB_NAME", "butustvgyyiel4gqhcuc"),
             connect_timeout=15
         )
