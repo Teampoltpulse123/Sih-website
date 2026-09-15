@@ -5,8 +5,13 @@ import time
 from datetime import datetime
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+from dotenv import load_dotenv
 from db import get_db_connection
 
+# Load environment variables
+load_dotenv()
+
+# Initialize Flask App
 app = Flask(__name__, static_folder="../Frontend", static_url_path="")
 CORS(app)
 
@@ -99,7 +104,7 @@ def manage_projects():
                 if isinstance(r.get("packages"), str):
                     try:
                         r["packages"] = json.loads(r["packages"])
-                    except:
+                    except Exception:
                         r["packages"] = []
                 elif not r.get("packages"):
                     r["packages"] = []
@@ -388,6 +393,7 @@ def decision_support():
         cursor.close()
         conn.close()
 
+# Main Runner - ALWAYS AT THE VERY END
 if __name__ == "__main__":
     print(f"GEO FRAME Flask server running at http://localhost:{PORT}")
     app.run(host="0.0.0.0", port=PORT, debug=True)

@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS geoframe_db;
-USE geoframe_db;
-
 -- 1. Projects Table
 CREATE TABLE IF NOT EXISTS projects (
     id VARCHAR(50) PRIMARY KEY,
@@ -22,7 +19,7 @@ CREATE TABLE IF NOT EXISTS projects (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. Land Parcels Table
+-- 2. Land Parcels Table (With Verification Columns)
 CREATE TABLE IF NOT EXISTS parcels (
     parcel VARCHAR(50) PRIMARY KEY,
     khasra VARCHAR(100) NOT NULL,
@@ -34,6 +31,10 @@ CREATE TABLE IF NOT EXISTS parcels (
     land_type VARCHAR(50) DEFAULT 'Agricultural',
     status VARCHAR(50) DEFAULT 'Pending',
     gps VARCHAR(100),
+    land_verified VARCHAR(50) DEFAULT 'Pending',
+    owner_verified VARCHAR(50) DEFAULT 'Pending',
+    verified_by VARCHAR(150),
+    verified_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -47,6 +48,7 @@ CREATE TABLE IF NOT EXISTS documents (
     uploaded_by VARCHAR(150),
     status VARCHAR(50) DEFAULT 'Verified',
     date_str VARCHAR(50),
+    verified_at TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (parcel) REFERENCES parcels(parcel) ON DELETE CASCADE
 );
@@ -107,11 +109,11 @@ INSERT IGNORE INTO projects (id, name, type, district, budget, parcels, progress
 ('PRJ-NH27-02', 'NH-27 Expansion Phase II', 'Highway', 'Lucknow / Kanpur', '₹420 Cr', 182, 72, 'Active', 82, 'National Highways Authority', 'A. Singh', '2026-01-12', '2027-06-30', '1,140 ha', 'NHAI', '[["Uttar Pradesh", "Lucknow", 86, 61, 25, 71]]'),
 ('PRJ-WDFC-11', 'Western Dedicated Freight Corridor', 'Railway', 'Rewari / Jaipur / Ahmedabad', '₹680 Cr', 246, 54, 'Active', 74, 'Railways', 'R. Sharma', '2025-11-01', '2027-12-31', '2,820 ha', 'Railways', '[["Rajasthan", "Jaipur", 101, 61, 40, 60]]');
 
-INSERT IGNORE INTO parcels (parcel, khasra, owner, village, district, state, area, land_type, status, gps) VALUES 
-('UP-LKO-10458', '245/2', 'Raj Kumar', 'Sarojini Nagar', 'Lucknow', 'Uttar Pradesh', '2.40 Acre', 'Agricultural', 'Processing', '26.7932, 80.8894'),
-('RJ-JP-004821', '118/7', 'Suresh Kumar', 'Sanganer', 'Jaipur', 'Rajasthan', '4.70 Acre', 'Agricultural', 'Review', '26.8206, 75.7858'),
-('KL-ER-10421', '77/4', 'Anita Nair', 'Aluva', 'Ernakulam', 'Kerala', '1.85 Acre', 'Residential', 'Pending', '10.1076, 76.3516'),
-('MH-TH-55201', '402/1', 'Vijay Patil', 'Kalyan', 'Thane', 'Maharashtra', '3.60 Acre', 'Commercial', 'Processing', '19.2403, 73.1305');
+INSERT IGNORE INTO parcels (parcel, khasra, owner, village, district, state, area, land_type, status, gps, land_verified, owner_verified) VALUES 
+('UP-LKO-10458', '245/2', 'Raj Kumar', 'Sarojini Nagar', 'Lucknow', 'Uttar Pradesh', '2.40 Acre', 'Agricultural', 'Processing', '26.7932, 80.8894', 'Verified', 'Verified'),
+('RJ-JP-004821', '118/7', 'Suresh Kumar', 'Sanganer', 'Jaipur', 'Rajasthan', '4.70 Acre', 'Agricultural', 'Review', '26.8206, 75.7858', 'Pending', 'Pending'),
+('KL-ER-10421', '77/4', 'Anita Nair', 'Aluva', 'Ernakulam', 'Kerala', '1.85 Acre', 'Residential', 'Pending', '10.1076, 76.3516', 'Pending', 'Pending'),
+('MH-TH-55201', '402/1', 'Vijay Patil', 'Kalyan', 'Thane', 'Maharashtra', '3.60 Acre', 'Commercial', 'Processing', '19.2403, 73.1305', 'Pending', 'Pending');
 
 INSERT IGNORE INTO documents (id, name, type, parcel, state, uploaded_by, status, date_str) VALUES 
 ('DOC-1', 'Ownership Record', 'Ownership', 'UP-LKO-10458', 'Uttar Pradesh', 'Revenue Office', 'Verified', '08 Sep 2026');
@@ -126,8 +128,4 @@ INSERT IGNORE INTO grievances (ticket, citizen, parcel, state, issue, hearing, s
 ('GRV-01', 'Suresh Kumar', 'UP-LKO-10458', 'Uttar Pradesh', 'Valuation objection', '12 Sep 2026', 'Open', 'A. Singh');
 
 INSERT IGNORE INTO audit_logs (time_str, user, action, module) VALUES 
-('08 Sep 2026 17:42', 'System', 'MySQL Database Online', 'Core');
-
-
-
-
+('08 Sep 2026 17:42', 'System', 'Clever Cloud MySQL Online', 'Core');
